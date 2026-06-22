@@ -21,12 +21,23 @@ const int PITCH_MAX = 10;
 const int ANIM_DURATION = 400;
 int lastYaw = 0;
 int lastPitch = 0;
+int sy = 0;
+int sp = 0;
 
 enum class Mode { Tracking, Animating };
 Mode mode = Mode::Tracking;
 int anchorYaw = 0;
 int anchorPitch = 0;
 unsigned long animStart = 0;
+
+const float DELTA_THRESHOLD = 3.0f;
+const int STILL_DURATION = 150;
+float lastRawYaw = 0;
+float lastRawPitch = 0;
+float deltaYaw = 0;
+float deltaPitch = 0;
+unsigned long stillStart = 0;
+bool resting = false;
 
 bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *data) {
   tft.startWrite();
@@ -72,39 +83,56 @@ void loop() {
     setReports();
   }
 
-  if (!bno08x.getSensorEvent(&sensorValue)) {
+  if (bno08x.getSensorEvent(&sensorValue)) {
+    if (sensorValue.sensorId == SH2_GAME_ROTATION_VECTOR) {
+
+      float r = sensorValue.un.gameRotationVector.real;
+      float i = sensorValue.un.gameRotationVector.i;
+      float j = sensorValue.un.gameRotationVector.j;
+      float k = sensorValue.un.gameRotationVector.k;
+
+      float rawYaw   = atan2(2.0f * (r * k + i * j), 1.0f - 2.0f * (j * j + k * k)) * RAD_TO_DEG;
+      float rawPitch = asin(2.0f * (r * j - k * i)) * RAD_TO_DEG;
+
+      rawYaw   = constrain(rawYaw,   -YAW_MAX,   YAW_MAX);
+      rawPitch = constrain(rawPitch, -PITCH_MAX, PITCH_MAX);
+
+      deltaYaw   = abs(rawYaw   - lastRawYaw);
+      deltaPitch = abs(rawPitch - lastRawPitch);
+      lastRawYaw   = rawYaw;
+      lastRawPitch = rawPitch;
+
+      if (deltaYaw >= DELTA_THRESHOLD || deltaPitch >= DELTA_THRESHOLD) {
+        stillStart = 0;
+        resting = false;
+      }
+
+      if (mode == Mode::Tracking) {
+        if (!resting) {
+          sy = round(rawYaw / 2.0f) * 2;
+          sp = round(rawPitch / 2.0f) * 2;
+
+          if (deltaYaw < DELTA_THRESHOLD && deltaPitch < DELTA_THRESHOLD) {
+            if (stillStart == 0) {
+              stillStart = now;
+            }
+            if (now - stillStart > STILL_DURATION && !(lastYaw == 0 && lastPitch == 0)) {
+              anchorYaw = lastYaw;
+              anchorPitch = lastPitch;
+              animStart = now;
+              mode = Mode::Animating;
+              stillStart = 0;
+            }
+          }
+        }
+      }
+    }
+  } else if (mode != Mode::Animating) {
     return;
   }
 
-  if (sensorValue.sensorId != SH2_GAME_ROTATION_VECTOR) return;
-
-  float r = sensorValue.un.gameRotationVector.real;
-  float i = sensorValue.un.gameRotationVector.i;
-  float j = sensorValue.un.gameRotationVector.j;
-  float k = sensorValue.un.gameRotationVector.k;
-
-  float rawYaw   = atan2(2.0f * (r * k + i * j), 1.0f - 2.0f * (j * j + k * k)) * RAD_TO_DEG;
-  float rawPitch = asin(2.0f * (r * j - k * i)) * RAD_TO_DEG;
-
-  rawYaw   = constrain(rawYaw,   -YAW_MAX,   YAW_MAX);
-  rawPitch = constrain(rawPitch, -PITCH_MAX, PITCH_MAX);
-
-  int sy = round(rawYaw   / 2.0f) * 2;
-  int sp = round(rawPitch / 2.0f) * 2;
-
-  if (mode == Mode::Tracking) {
-    if (sy == 0 && sp == 0 && !(lastYaw == 0 && lastPitch == 0)) {
-      anchorYaw = lastYaw;
-      anchorPitch = lastPitch;
-      animStart = now;
-      mode = Mode::Animating;
-      sy = anchorYaw;
-      sp = anchorPitch;
-    }
-  }
-
   if (mode == Mode::Animating) {
-    if (abs(sy) > 2 || abs(sp) > 2) {
+    if (deltaYaw > DELTA_THRESHOLD || deltaPitch > DELTA_THRESHOLD) {
       mode = Mode::Tracking;
     } else {
       float t = min((float)(now - animStart) / ANIM_DURATION, 1.0f);
@@ -115,11 +143,12 @@ void loop() {
         sy = 0;
         sp = 0;
         mode = Mode::Tracking;
+        resting = true;
       }
     }
   }
 
-  if (sy == lastYaw && sp == lastPitch) return;
+  if (mode != Mode::Animating && sy == lastYaw && sp == lastPitch) return;
   lastYaw = sy;
   lastPitch = sp;
 
