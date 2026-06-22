@@ -4,8 +4,9 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7789.h>
 #include <Adafruit_BNO08x.h>
-#include <TJpg_Decoder.h>
 #include <LittleFS.h>
+#include <FS.h>
+#include <tinf.h>
 
 #define TFT_CS          D0
 #define TFT_RST         D1
@@ -18,7 +19,7 @@ sh2_SensorValue_t sensorValue;
 
 const int YAW_MAX = 20;
 const int PITCH_MAX = 10;
-const int ANIM_DURATION = 400;
+const int ANIM_DURATION = 1000;
 int lastYaw = 0;
 int lastPitch = 0;
 int sy = 0;
@@ -38,14 +39,6 @@ float deltaYaw = 0;
 float deltaPitch = 0;
 unsigned long stillStart = 0;
 bool resting = false;
-
-bool tft_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *data) {
-  tft.startWrite();
-  tft.setAddrWindow(x, y, w, h);
-  tft.writePixels(data, w * h);
-  tft.endWrite();
-  return true;
-}
 
 void setReports() {
   bno08x.enableReport(SH2_GAME_ROTATION_VECTOR, 20000);
@@ -73,7 +66,52 @@ void setup() {
     while (1) delay(10);
   }
 
-  TJpgDec.setCallback(tft_output);
+}
+
+void drawRaw(const char *filename) {
+  File f = LittleFS.open(filename, "r");
+  if (!f) return;
+
+  uint16_t numColors;
+  f.read((uint8_t*)&numColors, 2);
+  if (numColors == 0 || numColors > 256) { f.close(); return; }
+
+  uint16_t palette[256];
+  f.read((uint8_t*)palette, numColors * 2);
+
+  uint16_t compressedSize;
+  f.read((uint8_t*)&compressedSize, 2);
+
+  uint8_t *compressed = (uint8_t*)malloc(compressedSize);
+  uint8_t *indices = (uint8_t*)malloc(240 * 320);
+  if (!compressed || !indices) {
+    if (compressed) free(compressed);
+    if (indices) free(indices);
+    f.close();
+    return;
+  }
+
+  f.read(compressed, compressedSize);
+  f.close();
+
+  unsigned int destLen = 240 * 320;
+  tinf_zlib_uncompress(indices, &destLen, compressed, compressedSize);
+  free(compressed);
+
+  tft.startWrite();
+  tft.setAddrWindow(0, 0, 240, 320);
+
+  uint16_t line[240];
+  for (int y = 0; y < 320; y++) {
+    int off = y * 240;
+    for (int x = 0; x < 240; x++) {
+      line[x] = palette[indices[off + x]];
+    }
+    tft.writePixels(line, 240);
+  }
+
+  tft.endWrite();
+  free(indices);
 }
 
 void loop() {
@@ -153,7 +191,7 @@ void loop() {
   lastPitch = sp;
 
   char filename[64];
-  snprintf(filename, sizeof(filename), "/pitch_%+03d_yaw_%+03d.jpg", sp, sy);
+  snprintf(filename, sizeof(filename), "/pitch_%+03d_yaw_%+03d.raw", sp, sy);
 
-  TJpgDec.drawFsJpg(0, 0, filename, LittleFS);
+  drawRaw(filename);
 }
