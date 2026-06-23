@@ -19,6 +19,7 @@ const float DEADZONE = 0.005f;
 const int YAW_MAX = 20;
 const int PITCH_MAX = 10;
 const int STEP = 4;
+const int ANIM_DURATION_MS = 500;
 
 enum class YawDir : int8_t { None, Left, Right };
 enum class PitchDir : int8_t { None, Down, Up };
@@ -30,6 +31,11 @@ int sy = 0;
 int sp = 0;
 int lastYaw = 0;
 int lastPitch = 0;
+
+bool isAnimating = false;
+unsigned long animStartMs = 0;
+int animOriginSy = 0;
+int animOriginSp = 0;
 
 static float prevJ = 0.0f;
 static float prevK = 0.0f;
@@ -167,10 +173,31 @@ void loop() {
         hasPrev = true;
     }
 
-    if (yawDirection == YawDir::Right) sy = constrain(sy + STEP, -YAW_MAX, YAW_MAX);
-    if (yawDirection == YawDir::Left)  sy = constrain(sy - STEP, -YAW_MAX, YAW_MAX);
-    if (pitchDirection == PitchDir::Down) sp = constrain(sp + STEP, -PITCH_MAX, PITCH_MAX);
-    if (pitchDirection == PitchDir::Up)   sp = constrain(sp - STEP, -PITCH_MAX, PITCH_MAX);
+    if (yawDirection != YawDir::None || pitchDirection != PitchDir::None) {
+        isAnimating = false;
+        if (yawDirection == YawDir::Right) sy = constrain(sy + STEP, -YAW_MAX, YAW_MAX);
+        if (yawDirection == YawDir::Left)  sy = constrain(sy - STEP, -YAW_MAX, YAW_MAX);
+        if (pitchDirection == PitchDir::Down) sp = constrain(sp + STEP, -PITCH_MAX, PITCH_MAX);
+        if (pitchDirection == PitchDir::Up)   sp = constrain(sp - STEP, -PITCH_MAX, PITCH_MAX);
+    } else if (sy != 0 || sp != 0) {
+        if (!isAnimating) {
+            isAnimating = true;
+            animStartMs = millis();
+            animOriginSy = sy;
+            animOriginSp = sp;
+        }
+
+        float t = (float)(millis() - animStartMs) / ANIM_DURATION_MS;
+        if (t >= 1.0f) {
+            sy = 0;
+            sp = 0;
+            isAnimating = false;
+        } else {
+            float ease = 1.0f - pow(1.0f - t, 3.0f);
+            sy = round(animOriginSy * (1.0f - ease) / STEP) * STEP;
+            sp = round(animOriginSp * (1.0f - ease) / STEP) * STEP;
+        }
+    }
 
     if (sy == lastYaw && sp == lastPitch) return;
     lastYaw = sy;
