@@ -15,6 +15,12 @@ const uint32_t TARGET_FPS = 24;
 const uint32_t FRAME_INTERVAL_US = 1000000 / TARGET_FPS;
 const float DEADZONE = 0.005f;
 
+enum class YawDir : int8_t { None, Left, Right };
+enum class PitchDir : int8_t { None, Down, Up };
+
+YawDir yawDirection = YawDir::None;
+PitchDir pitchDirection = PitchDir::None;
+
 static float prevJ = 0.0f;
 static float prevK = 0.0f;
 static bool hasPrev = false;
@@ -65,7 +71,8 @@ void loop() {
     }
 
     if (!gotEvent) {
-        Serial.println("(None, None)");
+        yawDirection = YawDir::None;
+        pitchDirection = PitchDir::None;
         return;
     }
 
@@ -73,30 +80,24 @@ void loop() {
         float j = sv.un.gameRotationVector.j;
         float k = sv.un.gameRotationVector.k;
 
-        String yawDir = "None";
-        String pitchDir = "None";
+        yawDirection = YawDir::None;
+        pitchDirection = PitchDir::None;
 
         if (hasPrev) {
             float dk = k - prevK;
             float dj = j - prevJ;
 
             if (fabs(dk) > DEADZONE) {
-                yawDir = (dk > 0) ? "Right" : "Left";
+                yawDirection = (dk > 0) ? YawDir::Right : YawDir::Left;
             }
 
             if (fabs(dj) > DEADZONE) {
-                pitchDir = (dj > 0) ? "Down" : "Up";
+                pitchDirection = (dj > 0) ? PitchDir::Down : PitchDir::Up;
             }
         }
 
         prevJ = j;
         prevK = k;
         hasPrev = true;
-
-        Serial.print("(");
-        Serial.print(yawDir);
-        Serial.print(", ");
-        Serial.print(pitchDir);
-        Serial.println(")");
     }
 }
