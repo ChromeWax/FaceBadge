@@ -18,7 +18,7 @@ const uint32_t FRAME_INTERVAL_US = 1000000 / TARGET_FPS;
 const float DEADZONE = 0.005f;
 const int YAW_MAX = 20;
 const int PITCH_MAX = 10;
-const int STEP = 2;
+const int STEP = 4;
 
 enum class YawDir : int8_t { None, Left, Right };
 enum class PitchDir : int8_t { None, Down, Up };
