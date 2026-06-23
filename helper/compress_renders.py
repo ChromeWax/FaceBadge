@@ -1,13 +1,21 @@
+import argparse
 from PIL import Image
 from pathlib import Path
 import struct
 import zlib
 import random
 
+parser = argparse.ArgumentParser(description="Compress render PNGs into .raw files")
+parser.add_argument("input_dir", type=str, help="Directory containing *.png renders")
+parser.add_argument("output_dir", type=str, help="Directory to write .raw files to")
+args = parser.parse_args()
+
 BG = (0, 0, 0)
 COLORS = 16
 
-pngs = sorted(Path("renders").glob("*.png"))
+input_dir = Path(args.input_dir)
+output_dir = Path(args.output_dir)
+pngs = sorted(input_dir.glob("*.png"))
 print(f"Found {len(pngs)} source PNGs")
 
 # Build shared palette from a random sample of frames
@@ -30,7 +38,7 @@ for j in range(COLORS):
     rgb565 = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3)
     rgb565_palette.append(rgb565)
 
-Path("raw_renders").mkdir(exist_ok=True)
+output_dir.mkdir(exist_ok=True)
 
 for i, png in enumerate(pngs):
     img = Image.open(png).convert("RGBA")
@@ -40,7 +48,7 @@ for i, png in enumerate(pngs):
     indices = q.get_flattened_data()
     compressed = zlib.compress(bytes(indices), 9)
 
-    raw_path = f"raw_renders/{png.stem}.raw"
+    raw_path = output_dir / f"{png.stem}.raw"
     with open(raw_path, "wb") as f:
         f.write(struct.pack("<H", COLORS))
         for c in rgb565_palette:
@@ -51,4 +59,4 @@ for i, png in enumerate(pngs):
     if i % 20 == 0:
         print(f"  [{i+1}/{len(pngs)}] {raw_path} ({len(compressed)} bytes)")
 
-print(f"Done — {len(pngs)} images converted to raw_renders/")
+print(f"Done — {len(pngs)} images converted to {output_dir}/")
