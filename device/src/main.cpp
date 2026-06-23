@@ -11,8 +11,9 @@
 #define TFT_DC          D2
 #define BNO08X_RESET    -1
 
-const uint32_t FRAME_INTERVAL_US = 41667; // ~24 FPS
-const float DEADZONE = 0.01f;
+const uint32_t TARGET_FPS = 24;
+const uint32_t FRAME_INTERVAL_US = 1000000 / TARGET_FPS;
+const float DEADZONE = 0.005f;
 
 static float prevJ = 0.0f;
 static float prevK = 0.0f;
