@@ -1,4 +1,4 @@
 (fp_lib_table
 	(version 7)
-	(lib (name "Seeed_Studio_XIAO_Series") (type "KiCad") (uri "/Users/richardvo/Documents/GitHub/Badge3D/pcb/KiCad/XIAOESP32/Seeed_Studio_XIAO_Series.pretty") (options "") (descr ""))
+	(lib (name "Seeed_Studio_XIAO_Series") (type "KiCad") (uri "/Users/richardvo/Documents/GitHub/FaceBadge/pcb/KiCad/XIAOESP32/Seeed_Studio_XIAO_Series.pretty") (options "") (descr ""))
 )

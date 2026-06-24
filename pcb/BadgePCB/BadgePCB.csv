@@ -1,0 +1,4 @@
+"Reference","Qty","Value","DNP","Exclude from BOM","Exclude from Board","Footprint","Datasheet"
+"IMU-BNO085","1","Conn_01x06","","","","Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical",""
+"TFT_ST7789","1","Conn_01x11","","","","Connector_PinHeader_2.54mm:PinHeader_1x11_P2.54mm_Vertical",""
+"U1","1","XIAO-ESP32-S3-SMD","","","","Seeed_Studio_XIAO_Series:XIAO-ESP32-S3-SMD",""
