@@ -1469,6 +1469,16 @@
 	)
 	(wire
 		(pts
+			(xy 105.41 66.04) (xy 114.3 66.04)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2fb80c7f-1f96-4025-801a-950fe276c33d")
+	)
+	(wire
+		(pts
 			(xy 226.06 62.23) (xy 234.95 62.23)
 		)
 		(stroke
@@ -1506,16 +1516,6 @@
 			(type default)
 		)
 		(uuid "3fe521c6-e99b-4a67-80c2-8a8cd7d92bd8")
-	)
-	(wire
-		(pts
-			(xy 105.41 73.66) (xy 114.3 73.66)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "4c2087fe-f82b-40f4-8238-c61680fb2756")
 	)
 	(wire
 		(pts
@@ -1679,6 +1679,16 @@
 	)
 	(wire
 		(pts
+			(xy 105.41 69.85) (xy 114.3 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c3cf7a37-fec9-4ad3-89c1-fabd991032ac")
+	)
+	(wire
+		(pts
 			(xy 135.89 86.36) (xy 135.89 90.17)
 		)
 		(stroke
@@ -1696,16 +1706,6 @@
 			(type default)
 		)
 		(uuid "d440a167-298f-451f-acd3-d59425194f23")
-	)
-	(wire
-		(pts
-			(xy 105.41 69.85) (xy 114.3 69.85)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "d89ef61a-53c1-4e33-8307-2b516ccca0a2")
 	)
 	(wire
 		(pts
@@ -1728,7 +1728,7 @@
 		(uuid "ff2ee6ba-279e-4de5-81a3-eb505e5387dc")
 	)
 	(label "SDA"
-		(at 105.41 69.85 0)
+		(at 105.41 66.04 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1798,7 +1798,7 @@
 		(uuid "46283588-3c9f-4230-8763-18e8b9ef5d46")
 	)
 	(label "SCL"
-		(at 105.41 73.66 0)
+		(at 105.41 69.85 0)
 		(effects
 			(font
 				(size 1.27 1.27)
