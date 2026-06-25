@@ -1439,16 +1439,6 @@
 	)
 	(wire
 		(pts
-			(xy 105.41 58.42) (xy 114.3 58.42)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "065c7630-5a1e-4a6d-9c69-a43f52e12336")
-	)
-	(wire
-		(pts
 			(xy 226.06 52.07) (xy 234.95 52.07)
 		)
 		(stroke
@@ -1675,7 +1665,7 @@
 			(width 0)
 			(type default)
 		)
-		(uuid "c07cd060-6cc9-4420-a789-45f20929ca58")
+		(uuid "b8e8ba7e-a473-4484-be9d-538881924c9f")
 	)
 	(wire
 		(pts
@@ -1726,6 +1716,16 @@
 			(type default)
 		)
 		(uuid "fcb5b091-e4ea-4d33-83ad-905e01e9a478")
+	)
+	(wire
+		(pts
+			(xy 105.41 58.42) (xy 114.3 58.42)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ff2ee6ba-279e-4de5-81a3-eb505e5387dc")
 	)
 	(label "SDA"
 		(at 105.41 69.85 0)
@@ -1828,7 +1828,7 @@
 		(uuid "9fe3b82f-36b5-49ea-a1aa-f60b253a40c0")
 	)
 	(label "TFT CS"
-		(at 105.41 50.8 0)
+		(at 105.41 58.42 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -1858,7 +1858,7 @@
 		(uuid "b363fc40-6031-47da-9b6c-9ef99b18de44")
 	)
 	(label "TFT D{slash}C"
-		(at 105.41 58.42 0)
+		(at 105.41 50.8 0)
 		(effects
 			(font
 				(size 1.27 1.27)
