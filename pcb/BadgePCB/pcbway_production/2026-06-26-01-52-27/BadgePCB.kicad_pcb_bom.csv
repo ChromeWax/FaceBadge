@@ -1,0 +1,5 @@
+﻿Designator,Quantity,Value,Footprint,Package,MPN,DNP,Mount_Type,Description,KiLib_Generator
+BATTERY-PADS1,1,Conn_01x02,JST_GH_SM02B-GHS-TB_1x02-1MP_P1.25mm_Horizontal,,,,smt,"Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)",connector/SMD_single_row_plus_mounting_pad
+IMU-BNO085,1,Conn_01x06,PinHeader_1x06_P2.54mm_Vertical,,,,tht,"Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)",connector/pin_header_socket
+TFT_ST7789,1,Conn_01x11,PinHeader_1x11_P2.54mm_Vertical,,,,tht,"Generic connector, single row, 01x11, script generated (kicad-library-utils/schlib/autogen/connector/)",connector/pin_header_socket
+U1,1,XIAO-ESP32-S3-SMD,XIAO-ESP32-S3-SMD,,,,tht,,

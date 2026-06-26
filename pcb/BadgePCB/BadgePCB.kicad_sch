@@ -1519,6 +1519,16 @@
 	)
 	(wire
 		(pts
+			(xy 128.27 95.25) (xy 128.27 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "483babfc-3005-46cb-84b3-617f214572aa")
+	)
+	(wire
+		(pts
 			(xy 226.06 54.61) (xy 234.95 54.61)
 		)
 		(stroke
@@ -1559,16 +1569,6 @@
 	)
 	(wire
 		(pts
-			(xy 133.35 82.55) (xy 133.35 90.17)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6155a560-6b2d-43c8-b3f9-d0d8139fa04e")
-	)
-	(wire
-		(pts
 			(xy 226.06 57.15) (xy 234.95 57.15)
 		)
 		(stroke
@@ -1586,6 +1586,16 @@
 			(type default)
 		)
 		(uuid "776a83bd-294c-4eeb-913d-614b3c8eb928")
+	)
+	(wire
+		(pts
+			(xy 137.16 82.55) (xy 137.16 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "78d76ac8-46ee-4f0f-a770-95827c81cfe7")
 	)
 	(wire
 		(pts
@@ -1609,16 +1619,6 @@
 	)
 	(wire
 		(pts
-			(xy 137.16 86.36) (xy 135.89 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8716caf8-4e1b-49d6-a0b8-77e5892d3018")
-	)
-	(wire
-		(pts
 			(xy 226.06 44.45) (xy 234.95 44.45)
 		)
 		(stroke
@@ -1626,16 +1626,6 @@
 			(type default)
 		)
 		(uuid "89fd918d-5702-410c-abda-fa55aa6ca5a0")
-	)
-	(wire
-		(pts
-			(xy 137.16 82.55) (xy 137.16 86.36)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a0f9b205-cc6c-499e-942e-99d36b87fea8")
 	)
 	(wire
 		(pts
@@ -1659,6 +1649,16 @@
 	)
 	(wire
 		(pts
+			(xy 128.27 87.63) (xy 130.81 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b806db74-3cf5-4f14-a444-ffe85706373c")
+	)
+	(wire
+		(pts
 			(xy 105.41 50.8) (xy 114.3 50.8)
 		)
 		(stroke
@@ -1666,6 +1666,16 @@
 			(type default)
 		)
 		(uuid "b8e8ba7e-a473-4484-be9d-538881924c9f")
+	)
+	(wire
+		(pts
+			(xy 137.16 95.25) (xy 128.27 95.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bfee8f64-b7a5-457d-a8cd-0f4d16f43fda")
 	)
 	(wire
 		(pts
@@ -1689,16 +1699,6 @@
 	)
 	(wire
 		(pts
-			(xy 135.89 86.36) (xy 135.89 90.17)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cf9754f7-8720-4261-af18-b1082881df2f")
-	)
-	(wire
-		(pts
 			(xy 157.48 62.23) (xy 166.37 62.23)
 		)
 		(stroke
@@ -1706,6 +1706,16 @@
 			(type default)
 		)
 		(uuid "d440a167-298f-451f-acd3-d59425194f23")
+	)
+	(wire
+		(pts
+			(xy 133.35 82.55) (xy 133.35 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e86a7d3c-8ee7-4c50-9064-38e6cba9da49")
 	)
 	(wire
 		(pts
@@ -2036,7 +2046,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
-		(at 135.89 95.25 270)
+		(at 133.35 92.71 270)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2047,7 +2057,7 @@
 		(fields_autoplaced yes)
 		(uuid "77d39c23-fedb-43da-83c5-ab8490947ac2")
 		(property "Reference" "BATTERY-PADS1"
-			(at 138.43 93.9799 90)
+			(at 135.89 91.4399 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2058,7 +2068,7 @@
 			)
 		)
 		(property "Value" "Conn_01x02"
-			(at 138.43 96.5199 90)
+			(at 135.89 93.9799 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2069,7 +2079,7 @@
 			)
 		)
 		(property "Footprint" "Connector_JST:JST_GH_SM02B-GHS-TB_1x02-1MP_P1.25mm_Horizontal"
-			(at 135.89 95.25 0)
+			(at 133.35 92.71 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2080,7 +2090,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 135.89 95.25 0)
+			(at 133.35 92.71 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2091,7 +2101,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 135.89 95.25 0)
+			(at 133.35 92.71 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)

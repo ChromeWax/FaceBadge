@@ -1,0 +1,5 @@
+﻿pos_x,pos_y,rotation,side,designator,mpn,pack,footprint,value,mount_type
+172.475,-120.15,180.0,bottom,BATTERY-PADS1,,,JST_GH_SM02B-GHS-TB_1x02-1MP_P1.25mm_Horizontal,Conn_01x02,smt
+144.38,-93.5,-90.0,bottom,IMU-BNO085,,,PinHeader_1x06_P2.54mm_Vertical,Conn_01x06,tht
+163.74,-121.5,-90.0,top,TFT_ST7789,,,PinHeader_1x11_P2.54mm_Vertical,Conn_01x11,tht
+155.488,-68.01,90.0,bottom,U1,,,XIAO-ESP32-S3-SMD,XIAO-ESP32-S3-SMD,tht
