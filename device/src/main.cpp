@@ -8,9 +8,9 @@
 #include <FS.h>
 #include <tinf.h>
 
-#define TFT_CS          D0
+#define TFT_CS          D2
 #define TFT_RST         D1
-#define TFT_DC          D2
+#define TFT_DC          D0
 #define BNO08X_RESET    -1
 
 const uint32_t TARGET_FPS = 24;
@@ -112,15 +112,14 @@ void setup() {
     Serial.begin(115200);
 
     tft.init(240, 320);
-    tft.setRotation(0);
+    tft.setRotation(2);
     tft.setSPISpeed(80000000);
     tft.fillScreen(ST77XX_BLACK);
 
     Wire.begin();
-    if (!bno08x.begin_I2C()) {
-        Serial.println("Failed to find BNO08x chip");
-        tft.println("BNO08x not found!");
-        while (1) delay(10);
+    while (!bno08x.begin_I2C()) {
+        Serial.println("Waiting for BNO08x chip...");
+        delay(500);
     }
 
     if (!LittleFS.begin()) {
@@ -164,7 +163,7 @@ void loop() {
             }
 
             if (fabs(dj) > DEADZONE) {
-                pitchDirection = (dj > 0) ? PitchDir::Down : PitchDir::Up;
+                pitchDirection = (dj > 0) ? PitchDir::Up : PitchDir::Down;
             }
         }
 
