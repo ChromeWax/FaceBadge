@@ -19,7 +19,7 @@ const float ANGLE_DEADZONE = 5.0f;
 const int YAW_MAX = 20;
 const int PITCH_MAX = 10;
 const int STEP = 4;
-const int ANIM_DURATION_MS = 500;
+const int RETURN_DURATION_MS = 500;
 
 enum class YawDir : int8_t { None, Left, Right };
 enum class PitchDir : int8_t { None, Down, Up };
@@ -220,7 +220,7 @@ void loop() {
             animOriginSp = sp;
         }
 
-        float t = (float)(millis() - animStartMs) / ANIM_DURATION_MS;
+        float t = (float)(millis() - animStartMs) / RETURN_DURATION_MS;
         if (t >= 1.0f) {
             sy = 0;
             sp = 0;
