@@ -15,7 +15,7 @@
 
 const uint32_t TARGET_FPS = 12;
 const uint32_t FRAME_INTERVAL_US = 1000000 / TARGET_FPS;
-const float DEADZONE = 0.005f;
+const float ANGLE_DEADZONE = 5.0f;
 const int YAW_MAX = 20;
 const int PITCH_MAX = 10;
 const int STEP = 4;
@@ -23,9 +23,6 @@ const int ANIM_DURATION_MS = 500;
 
 enum class YawDir : int8_t { None, Left, Right };
 enum class PitchDir : int8_t { None, Down, Up };
-
-YawDir yawDirection = YawDir::None;
-PitchDir pitchDirection = PitchDir::None;
 
 int sy = 0;
 int sp = 0;
@@ -37,13 +34,12 @@ unsigned long animStartMs = 0;
 int animOriginSy = 0;
 int animOriginSp = 0;
 
-static float prevJ = 0.0f;
-static float prevK = 0.0f;
+static float prevYaw = 0.0f;
+static float prevPitch = 0.0f;
 static bool hasPrev = false;
 
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 Adafruit_BNO08x bno08x(BNO08X_RESET);
-sh2_SensorValue_t sensorValue;
 
 uint32_t lastFrameUs = 0;
 
@@ -102,6 +98,30 @@ void drawRaw(const char *filename) {
     free(indices);
 }
 
+void quaternionToEuler(float qr, float qi, float qj, float qk,
+                       float* yaw, float* pitch, float* roll, bool degrees) {
+    float sqr = qr * qr;
+    float sqi = qi * qi;
+    float sqj = qj * qj;
+    float sqk = qk * qk;
+
+    *yaw   = atan2(2.0f * (qi * qj + qk * qr), (sqi - sqj - sqk + sqr));
+    *pitch = asin(-2.0f * (qi * qk - qj * qr) / (sqi + sqj + sqk + sqr));
+    *roll  = atan2(2.0f * (qj * qk + qi * qr), (-sqi - sqj + sqk + sqr));
+
+    if (degrees) {
+        *yaw   *= RAD_TO_DEG;
+        *pitch *= RAD_TO_DEG;
+        *roll  *= RAD_TO_DEG;
+    }
+}
+
+void remapMounting(float sensorYaw, float sensorPitch, float sensorRoll,
+                   float* badgeYaw, float* badgePitch) {
+    *badgeYaw = sensorYaw;
+    *badgePitch = sensorRoll;
+}
+
 void setReports() {
     if (!bno08x.enableReport(SH2_GAME_ROTATION_VECTOR)) {
         Serial.println("Could not enable game vector");
@@ -137,6 +157,7 @@ void loop() {
 
     if (bno08x.wasReset()) {
         setReports();
+        hasPrev = false;
     }
 
     sh2_SensorValue_t sv;
@@ -145,40 +166,52 @@ void loop() {
         gotEvent = true;
     }
 
-    if (!gotEvent) {
-        yawDirection = YawDir::None;
-        pitchDirection = PitchDir::None;
-    } else if (sv.sensorId == SH2_GAME_ROTATION_VECTOR) {
+    YawDir yawDir = YawDir::None;
+    PitchDir pitchDir = PitchDir::None;
+
+    if (gotEvent && sv.sensorId == SH2_GAME_ROTATION_VECTOR) {
+        float real = sv.un.gameRotationVector.real;
+        float i = sv.un.gameRotationVector.i;
         float j = sv.un.gameRotationVector.j;
         float k = sv.un.gameRotationVector.k;
 
-        yawDirection = YawDir::None;
-        pitchDirection = PitchDir::None;
+        float sensorYaw, sensorPitch, sensorRoll;
+        quaternionToEuler(real, i, j, k, &sensorYaw, &sensorPitch, &sensorRoll, true);
+
+        float badgeYaw, badgePitch;
+        remapMounting(sensorYaw, sensorPitch, sensorRoll, &badgeYaw, &badgePitch);
+
+        Serial.printf("s(y=%.1f p=%.1f r=%.1f) b(y=%.1f p=%.1f)\n",
+                      sensorYaw, sensorPitch, sensorRoll, badgeYaw, badgePitch);
 
         if (hasPrev) {
-            float dk = k - prevK;
-            float dj = j - prevJ;
+            float dy = badgeYaw - prevYaw;
+            float dp = badgePitch - prevPitch;
 
-            if (fabs(dk) > DEADZONE) {
-                yawDirection = (dk > 0) ? YawDir::Right : YawDir::Left;
+            if (dy > 180.0f) dy -= 360.0f;
+            if (dy < -180.0f) dy += 360.0f;
+            if (dp > 180.0f) dp -= 360.0f;
+            if (dp < -180.0f) dp += 360.0f;
+
+            if (fabs(dy) > ANGLE_DEADZONE) {
+                yawDir = (dy > 0) ? YawDir::Right : YawDir::Left;
             }
-
-            if (fabs(dj) > DEADZONE) {
-                pitchDirection = (dj > 0) ? PitchDir::Up : PitchDir::Down;
+            if (fabs(dp) > ANGLE_DEADZONE) {
+                pitchDir = (dp > 0) ? PitchDir::Up : PitchDir::Down;
             }
         }
 
-        prevJ = j;
-        prevK = k;
+        prevYaw = badgeYaw;
+        prevPitch = badgePitch;
         hasPrev = true;
     }
 
-    if (yawDirection != YawDir::None || pitchDirection != PitchDir::None) {
+    if (yawDir != YawDir::None || pitchDir != PitchDir::None) {
         isAnimating = false;
-        if (yawDirection == YawDir::Right) sy = constrain(sy + STEP, -YAW_MAX, YAW_MAX);
-        if (yawDirection == YawDir::Left)  sy = constrain(sy - STEP, -YAW_MAX, YAW_MAX);
-        if (pitchDirection == PitchDir::Down) sp = constrain(sp + STEP, -PITCH_MAX, PITCH_MAX);
-        if (pitchDirection == PitchDir::Up)   sp = constrain(sp - STEP, -PITCH_MAX, PITCH_MAX);
+        if (yawDir == YawDir::Right) sy = constrain(sy + STEP, -YAW_MAX, YAW_MAX);
+        if (yawDir == YawDir::Left)  sy = constrain(sy - STEP, -YAW_MAX, YAW_MAX);
+        if (pitchDir == PitchDir::Down) sp = constrain(sp + STEP, -PITCH_MAX, PITCH_MAX);
+        if (pitchDir == PitchDir::Up)   sp = constrain(sp - STEP, -PITCH_MAX, PITCH_MAX);
     } else if (sy != 0 || sp != 0) {
         if (!isAnimating) {
             isAnimating = true;
