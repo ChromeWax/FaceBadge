@@ -15,7 +15,7 @@
 
 const uint32_t TARGET_FPS = 12;
 const uint32_t FRAME_INTERVAL_US = 1000000 / TARGET_FPS;
-const float ANGLE_DEADZONE = 5.0f;
+const float ANGLE_DEADZONE = 1.0f;
 const int YAW_MAX = 20;
 const int PITCH_MAX = 10;
 const int STEP = 4;
