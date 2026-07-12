@@ -183,8 +183,7 @@ void loop() {
         float badgeYaw, badgePitch;
         remapMounting(sensorYaw, sensorPitch, sensorRoll, &badgeYaw, &badgePitch);
 
-        Serial.printf("s(y=%.1f p=%.1f r=%.1f) b(y=%.1f p=%.1f)\n",
-                      sensorYaw, sensorPitch, sensorRoll, badgeYaw, badgePitch);
+        //Serial.printf("s(y=%.1f p=%.1f r=%.1f) b(y=%.1f p=%.1f)\n", sensorYaw, sensorPitch, sensorRoll, badgeYaw, badgePitch);
 
         if (hasPrev) {
             float dy = badgeYaw - prevYaw;
