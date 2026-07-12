@@ -11,7 +11,7 @@ parser.add_argument("output_dir", type=str, help="Directory to write .raw files 
 args = parser.parse_args()
 
 BG = (0, 0, 0)
-COLORS = 16
+COLORS = 64
 
 input_dir = Path(args.input_dir)
 output_dir = Path(args.output_dir)

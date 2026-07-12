@@ -13,7 +13,7 @@
 #define TFT_DC          D0
 #define BNO08X_RESET    -1
 
-const uint32_t TARGET_FPS = 24;
+const uint32_t TARGET_FPS = 12;
 const uint32_t FRAME_INTERVAL_US = 1000000 / TARGET_FPS;
 const float DEADZONE = 0.005f;
 const int YAW_MAX = 20;
@@ -119,13 +119,14 @@ void setup() {
     Wire.begin();
     while (!bno08x.begin_I2C()) {
         Serial.println("Waiting for BNO08x chip...");
+        tft.println("Waiting for BNO08x chip...");
         delay(500);
     }
 
     if (!LittleFS.begin()) {
         Serial.println("LittleFS mount failed");
         tft.println("FS mount failed!");
-        while (1) delay(10);
+        delay(500);
     }
 
     setReports();

@@ -35,3 +35,5 @@
 .idea
 .venv
 .pio
+/device/data
+/images/raw_renders
