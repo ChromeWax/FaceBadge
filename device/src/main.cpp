@@ -149,6 +149,8 @@ void setup() {
         delay(500);
     }
 
+    drawRaw("/pitch_+000_yaw_+000.raw");
+
     setReports();
 }
 
