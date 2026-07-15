@@ -20,6 +20,8 @@ const int YAW_MAX = 20;
 const int PITCH_MAX = 10;
 const int STEP = 4;
 const int RETURN_DURATION_MS = 500;
+const unsigned long IDLE_TIMEOUT_MS = 120000;
+const unsigned long PATROL_STEP_INTERVAL_MS = 500;
 
 enum class YawDir : int8_t { None, Left, Right };
 enum class PitchDir : int8_t { None, Down, Up };
@@ -37,6 +39,11 @@ int animOriginSp = 0;
 static float prevYaw = 0.0f;
 static float prevPitch = 0.0f;
 static bool hasPrev = false;
+
+unsigned long lastMovementMs = 0;
+bool isPatrolling = false;
+int patrolDirection = 1;
+unsigned long lastPatrolStepMs = 0;
 
 Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
 Adafruit_BNO08x bno08x(BNO08X_RESET);
@@ -149,7 +156,7 @@ void setup() {
         delay(500);
     }
 
-    drawRaw("/pitch_+000_yaw_+000.raw");
+    drawRaw("/pitch_+00_yaw_+00.raw");
 
     setReports();
 }
@@ -209,10 +216,25 @@ void loop() {
 
     if (yawDir != YawDir::None || pitchDir != PitchDir::None) {
         isAnimating = false;
+        if (isPatrolling) {
+            sy = 0;
+            sp = 0;
+        }
+        isPatrolling = false;
+        lastMovementMs = millis();
         if (yawDir == YawDir::Right) sy = constrain(sy + STEP, -YAW_MAX, YAW_MAX);
         if (yawDir == YawDir::Left)  sy = constrain(sy - STEP, -YAW_MAX, YAW_MAX);
         if (pitchDir == PitchDir::Down) sp = constrain(sp + STEP, -PITCH_MAX, PITCH_MAX);
         if (pitchDir == PitchDir::Up)   sp = constrain(sp - STEP, -PITCH_MAX, PITCH_MAX);
+    } else if (isPatrolling) {
+        unsigned long now = millis();
+        if (now - lastPatrolStepMs >= PATROL_STEP_INTERVAL_MS) {
+            lastPatrolStepMs = now;
+            sy += patrolDirection * STEP;
+            if (sy >= YAW_MAX) { sy = YAW_MAX; patrolDirection = -1; }
+            else if (sy <= -YAW_MAX) { sy = -YAW_MAX; patrolDirection = 1; }
+            sp = 0;
+        }
     } else if (sy != 0 || sp != 0) {
         if (!isAnimating) {
             isAnimating = true;
@@ -230,6 +252,12 @@ void loop() {
             float ease = 1.0f - pow(1.0f - t, 3.0f);
             sy = round(animOriginSy * (1.0f - ease) / STEP) * STEP;
             sp = round(animOriginSp * (1.0f - ease) / STEP) * STEP;
+        }
+    } else {
+        if (millis() - lastMovementMs >= IDLE_TIMEOUT_MS) {
+            isPatrolling = true;
+            lastPatrolStepMs = millis();
+            patrolDirection = 1;
         }
     }
 
