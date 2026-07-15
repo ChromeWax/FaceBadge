@@ -1,5 +1,5 @@
 import argparse
-from PIL import Image
+from PIL import Image, ImageEnhance
 from pathlib import Path
 import struct
 import zlib
@@ -11,7 +11,7 @@ parser.add_argument("output_dir", type=str, help="Directory to write .raw files 
 args = parser.parse_args()
 
 BG = (0, 0, 0)
-COLORS = 64
+COLORS = 128
 
 input_dir = Path(args.input_dir)
 output_dir = Path(args.output_dir)
@@ -26,6 +26,7 @@ for i, png in enumerate(sample):
     img = Image.open(png).convert("RGBA")
     bg_img = Image.new("RGB", img.size, BG)
     bg_img.paste(img, mask=img.split()[3])
+    bg_img = ImageEnhance.Color(bg_img).enhance(1.5)
     composite.paste(bg_img, (i * 240, 0))
 shared_q = composite.quantize(colors=COLORS, method=Image.Quantize.MEDIANCUT)
 shared_palette_pil = shared_q.getpalette()[:COLORS * 3]
@@ -44,6 +45,7 @@ for i, png in enumerate(pngs):
     img = Image.open(png).convert("RGBA")
     bg_img = Image.new("RGB", img.size, BG)
     bg_img.paste(img, mask=img.split()[3])
+    bg_img = ImageEnhance.Color(bg_img).enhance(1.5)
     q = bg_img.quantize(palette=shared_q, dither=Image.Dither.NONE)
     indices = q.get_flattened_data()
     compressed = zlib.compress(bytes(indices), 9)
