@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <Wire.h>
+#include <driver/rtc_io.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7789.h>
 #include <Adafruit_BNO08x.h>
@@ -11,7 +12,10 @@
 #define TFT_CS          D2
 #define TFT_RST         D1
 #define TFT_DC          D0
+#define TFT_BL          D3
+#define TFT_BL_CHANNEL  0
 #define BNO08X_RESET    -1
+#define BTN_WAKESLEEP   0   // BOOT button (active low)
 
 const uint32_t TARGET_FPS = 12;
 const uint32_t FRAME_INTERVAL_US = 1000000 / TARGET_FPS;
@@ -135,13 +139,39 @@ void setReports() {
     }
 }
 
+void goToSleep() {
+    ledcDetachPin(TFT_BL);
+    pinMode(TFT_BL, OUTPUT);
+    digitalWrite(TFT_BL, LOW);
+    rtc_gpio_hold_en((gpio_num_t)TFT_BL);
+    esp_deep_sleep_start();
+}
+
 void setup() {
+    // This is to reset the BNO08x which unfortunately is set to D6
+    pinMode(D6, OUTPUT);
+    digitalWrite(D6, LOW);
+    delay(50);
+    digitalWrite(D6, HIGH);
+    delay(50);
+
+    pinMode(BTN_WAKESLEEP, INPUT_PULLUP);
+    if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_EXT0) {
+        while (digitalRead(BTN_WAKESLEEP) == LOW) delay(10);
+        delay(50);
+    }
+
     Serial.begin(115200);
 
     tft.init(240, 320);
     tft.setRotation(2);
     tft.setSPISpeed(80000000);
     tft.fillScreen(ST77XX_BLACK);
+
+    rtc_gpio_hold_dis((gpio_num_t)TFT_BL);
+    ledcSetup(TFT_BL_CHANNEL, 5000, 8);
+    ledcAttachPin(TFT_BL, TFT_BL_CHANNEL);
+    ledcWrite(TFT_BL_CHANNEL, 128);
 
     Wire.begin();
     while (!bno08x.begin_I2C()) {
@@ -159,9 +189,19 @@ void setup() {
     drawRaw("/pitch_+00_yaw_+00.raw");
 
     setReports();
+
+    esp_sleep_enable_ext0_wakeup((gpio_num_t)BTN_WAKESLEEP, 0);
 }
 
 void loop() {
+    if (digitalRead(BTN_WAKESLEEP) == LOW) {
+        delay(50);
+        if (digitalRead(BTN_WAKESLEEP) == LOW) {
+            while (digitalRead(BTN_WAKESLEEP) == LOW) delay(10);
+            goToSleep();
+        }
+    }
+
     waitForNextFrame();
 
     if (bno08x.wasReset()) {
